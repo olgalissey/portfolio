@@ -6,7 +6,7 @@
   <title>Olga Lissey</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Host+Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,800;1,300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=EB+Garamond:wght@400;700&family=Host+Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,800;1,300&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -54,21 +54,22 @@
       position: sticky;
       top: 0;
       z-index: 1000;
-      background: var(--bg);
+      background: transparent;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: var(--space-3) var(--page-x);
       border-bottom: 1px solid transparent;
-      transition: border-color 0.3s;
+      transition: border-color 0.3s, background 0.3s;
     }
-    nav.scrolled { border-color: var(--border); }
+    nav.scrolled { border-color: var(--border); background: rgba(245, 245, 245, 0.85); }
 
     .nav-logo {
       font-family: var(--sans);
       font-size: 16px;
-      font-weight: 800;
-      letter-spacing: 1px;
+      font-family: 'EB Garamond', Georgia, serif;
+      font-weight: 400;
+      letter-spacing: 0;
       text-transform: uppercase;
       color: var(--ink);
       text-decoration: none;
@@ -87,6 +88,7 @@
       color: var(--ink);
       text-decoration: none;
       position: relative;
+      transition: color 0.2s ease, font-weight 0s;
     }
     .nav-links a::after {
       content: '';
@@ -98,30 +100,62 @@
       background: var(--navy);
       transition: width 0.25s ease;
     }
-    .nav-links a:hover { color: var(--navy); }
-    .nav-links a:hover::after { width: 100%; }
+    .nav-links a:not(.active):hover { color: var(--navy); font-weight: 600; }
+    .nav-links a.active { color: var(--navy); }
+    .nav-links a.active::after { width: 100%; }
 
     /* ── HERO ── */
     .hero {
-      padding: var(--space-10) var(--page-x) var(--space-12);
-      display: grid;
-      grid-template-columns: 1fr;
+      position: relative;
+      height: 50vh;
+      display: flex;
       align-items: center;
-      min-height: 52vh;
+      justify-content: center;
+      margin: 0 var(--page-x) 48px;
     }
-
-    .hero-heading {
-      font-family: var(--serif);
-      font-size: clamp(48px, 7vw, 96px);
+    .hero-canvas {
+      position: absolute;
+      top: -200px;
+      left: -200px;
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: multiply;
+    }
+    .hero-text {
+      position: relative;
+      z-index: 1;
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: clamp(36px, 6.5vw, 92px);
       font-weight: 400;
-      line-height: 1.08;
       color: var(--ink);
-      letter-spacing: -0.02em;
+      line-height: 1.05;
+      text-align: center;
+      max-width: 900px;
+      padding: 0 var(--page-x);
+      margin-right: auto;
     }
-
-    .hero-heading em {
-      font-style: italic;
-      color: var(--navy);
+    .hero-badge {
+      position: absolute;
+      right: 48px;
+      bottom: 40px;
+      width: 100px;
+      height: 100px;
+      z-index: 2;
+    }
+    .hero-badge svg {
+      width: 100%;
+      height: 100%;
+      animation: spin 10s linear infinite;
+    }
+    .hero-badge-line {
+      position: absolute;
+      bottom: -48px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1px;
+      height: 40px;
+      background: var(--ink);
+      opacity: 0.4;
     }
 
     @keyframes spin {
@@ -175,7 +209,7 @@
       font-size: 13px;
       font-weight: 400;
       letter-spacing: 0.06em;
-      color: var(--mid);
+      color: var(--ink);
       background: none;
       border: none;
       cursor: pointer;
@@ -191,14 +225,13 @@
       width: 0;
       height: 1px;
       background: var(--navy);
-      transition: width 0.25s;
     }
     .work-filters button.active {
       color: var(--navy);
       font-weight: 500;
     }
     .work-filters button.active::after { width: 100%; }
-    .work-filters button:hover { color: var(--ink); }
+    .work-filters button:not(.active):hover { color: var(--navy); font-weight: 600; }
 
     .work-grid {
       display: grid;
@@ -209,6 +242,8 @@
     .project-card {
       cursor: pointer;
       position: relative;
+      border-radius: 4px;
+      overflow: hidden;
     }
     .project-card.hidden { display: none; }
 
@@ -254,7 +289,7 @@
       font-weight: 400;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--mid);
+      color: var(--ink);
       text-align: right;
       line-height: 1.5;
     }
@@ -493,7 +528,7 @@
 
   <!-- NAV -->
   <nav id="nav">
-    <a href="#" class="nav-logo">Olga Lissey</a>
+    <a href="#" class="nav-logo"><img src="Logo.png" alt="Olga Lissey" style="height: 32px; display: block;" /></a>
     <ul class="nav-links">
       <li><a href="#work">Work</a></li>
       <li><a href="#about">About</a></li>
@@ -502,10 +537,7 @@
 
   <!-- HERO -->
   <section class="hero">
-    <h1 class="hero-heading">
-      From insight to strategy<br>
-      From strategy to <em>impact</em>
-    </h1>
+    <canvas class="hero-canvas" id="heroCanvas"></canvas>
   </section>
 
   <!-- SELECTED WORK -->
@@ -605,15 +637,16 @@
   <!-- ABOUT -->
   <section class="about" id="about">
     <div class="about-text">
-      <h2 class="about-heading">Olga Lissey</h2>
-      <p class="about-bio">Olga brings together global perspectives, unparalleled creativity, and a process that rewards visionary clients — crafting work that defies convention.</p>
+      <h2 class="about-heading">About</h2>
+      <p class="about-bio">I've always been curious about people. Over the years, that curiosity expanded beyond UX into a more holistic approach to strategy, communication, and systems thinking. Today, I help turn ambiguity into direction by asking the right questions and connecting ideas across disciplines.</p>
+      <p class="about-bio">For me, design is both a practice and a mindset — a way to live intentionally.</p>
     </div>
     <div class="about-photo-wrap">
       <div class="portrait-wrap">
         <div class="portrait-float">
           <div class="portrait-glow"></div>
           <div class="portrait-frame">
-            <img src="portrait2.png" alt="Olga Lissey" loading="lazy" />
+            <img src="Portrait.png" alt="Olga Lissey" loading="lazy" />
           </div>
         </div>
       </div>
@@ -631,6 +664,7 @@
   </footer>
 
   <script>
+
     // Cursor orb — three-zone logic: work / nav / everything else
     const workSection = document.getElementById('work');
     const cursorOrb   = document.getElementById('cursor-orb');
@@ -674,8 +708,9 @@
                   && cx >= workRect.left && cx <= workRect.right;
       const inNav  = cy >= navRect.top  && cy <= navRect.bottom
                   && cx >= navRect.left && cx <= navRect.right;
+      const inFilters = !!e.target.closest('.work-filters') || !!e.target.closest('.work-header');
 
-      const newZone = inWork ? 'work' : inNav ? 'nav' : 'other';
+      const newZone = inFilters ? 'other' : inWork ? 'work' : inNav ? 'nav' : 'other';
 
       if (newZone !== zone) {
         zone = newZone;
@@ -722,6 +757,29 @@
       requestAnimationFrame(animateOrb);
     }
     animateOrb();
+
+    // Active nav on scroll
+    const navLinkWork  = document.querySelector('.nav-links a[href="#work"]');
+    const navLinkAbout = document.querySelector('.nav-links a[href="#about"]');
+    const sections = [
+      { el: document.getElementById('work'),  link: navLinkWork  },
+      { el: document.getElementById('about'), link: navLinkAbout },
+    ];
+
+    function updateActiveNav() {
+      const mid = window.innerHeight / 2;
+      let active = null;
+      sections.forEach(({ el }) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= mid && rect.bottom >= mid) active = el.id;
+      });
+      sections.forEach(({ el, link }) => {
+        link.classList.toggle('active', el.id === active);
+      });
+    }
+
+    window.addEventListener('scroll', updateActiveNav, { passive: true });
+    updateActiveNav();
 
     // Nav scroll shadow
     const nav = document.getElementById('nav');
@@ -775,6 +833,93 @@
     }, 5000);
 
     document.querySelector('.testimonials').addEventListener('mouseenter', () => clearInterval(tInterval));
+    // ── HERO CANVAS BLOBS ──
+    (function() {
+      const canvas = document.getElementById('heroCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const BLEED = 200;
+
+      function resize() {
+        const hero = canvas.parentElement;
+        const w = hero.offsetWidth + BLEED * 2;
+        const h = hero.offsetHeight + BLEED * 2;
+        canvas.width = w;
+        canvas.height = h;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // Blobs orbit around a fixed center point in canvas coordinates.
+      // Canvas y=0 is BLEED_TOP px above the hero top edge.
+      // Hero visual center in canvas coords = BLEED_TOP + hero.height/2.
+      const blobs = [
+        {
+          color: '38,34,30',
+          rFactor: 0.21,
+          acx: 0.15, acy: 0.35,
+          orbitX: 30, orbitY: 15,
+          speed: 16000,
+          phase: 0,
+          clockwise: 1,
+          opacity: 0.85
+        },
+        {
+          color: '180,140,85',      // richer warm gold
+          rFactor: 0.32,
+          acx: 0.65, acy: 0.65,    // center-right, lower half
+          orbitX: 40, orbitY: 30,
+          speed: 22000,
+          phase: Math.PI,
+          clockwise: -1
+        }
+      ];
+
+      function draw(ts) {
+        const hero = canvas.parentElement;
+        const heroW = hero.offsetWidth;
+        const heroH = hero.offsetHeight;
+        const canvasW = canvas.width;
+        ctx.clearRect(0, 0, canvasW, canvas.height);
+
+        blobs.forEach(b => {
+          const t = (ts / b.speed) * Math.PI * 2 + b.phase;
+          const ocx = BLEED + b.acx * heroW;
+          const ocy = BLEED + b.acy * heroH;
+          const cx = ocx + Math.sin(t * b.clockwise) * b.orbitX;
+          const cy = ocy + Math.cos(t * b.clockwise) * b.orbitY;
+          const r = b.rFactor * canvasW;
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          const op = b.opacity ?? 1;
+          const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+          grad.addColorStop(0,   `rgba(${b.color}, ${(0.55 * op).toFixed(2)})`);
+          grad.addColorStop(0.4, `rgba(${b.color}, ${(0.25 * op).toFixed(2)})`);
+          grad.addColorStop(1,   `rgba(${b.color}, 0)`);
+          ctx.beginPath();
+          ctx.arc(0, 0, r, 0, Math.PI * 2);
+          ctx.fillStyle = grad;
+          ctx.fill();
+          ctx.restore();
+        });
+
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+    })();
+
+    function alignHeroToLogo() {
+      const logo = document.querySelector('.nav-logo');
+      const heroText = document.querySelector('.hero-text');
+      if (!logo || !heroText) return;
+      const logoRight = logo.getBoundingClientRect().right;
+      heroText.style.paddingLeft = logoRight + 'px';
+    }
+    alignHeroToLogo();
+    window.addEventListener('resize', alignHeroToLogo);
   </script>
 
 </body>
