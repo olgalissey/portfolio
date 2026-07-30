@@ -6,8 +6,44 @@
   <title>Olga Lissey</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=EB+Garamond:wght@400;700&family=Host+Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,800;1,300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=EB+Garamond:wght@400;700&display=swap" rel="stylesheet" />
   <style>
+    @font-face {
+      font-family: 'PP Mori';
+      src: url('PP Mori - Free for Personal Use v1.0/PPMori-Extralight.otf') format('opentype');
+      font-weight: 200;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'PP Mori';
+      src: url('PP Mori - Free for Personal Use v1.0/PPMori-ExtralightItalic.otf') format('opentype');
+      font-weight: 200;
+      font-style: italic;
+    }
+    @font-face {
+      font-family: 'PP Mori';
+      src: url('PP Mori - Free for Personal Use v1.0/PPMori-Regular.otf') format('opentype');
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'PP Mori';
+      src: url('PP Mori - Free for Personal Use v1.0/PPMori-RegularItalic.otf') format('opentype');
+      font-weight: 400;
+      font-style: italic;
+    }
+    @font-face {
+      font-family: 'PP Mori';
+      src: url('PP Mori - Free for Personal Use v1.0/PPMori-SemiBold.otf') format('opentype');
+      font-weight: 600;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'PP Mori';
+      src: url('PP Mori - Free for Personal Use v1.0/PPMori-SemiBoldItalic.otf') format('opentype');
+      font-weight: 600;
+      font-style: italic;
+    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -21,8 +57,8 @@
       --mid: #999;
       --border: #d8d8d8;
 
-      --serif: 'DM Serif Display', Georgia, serif;
-      --sans: 'Host Grotesk', system-ui, sans-serif;
+      --serif: 'PP Mori', system-ui, sans-serif;
+      --sans: 'PP Mori', system-ui, sans-serif;
 
       --space-1: 8px;
       --space-2: 16px;
@@ -359,12 +395,13 @@
 
     .testimonial-quote {
       font-family: var(--serif);
-      font-size: clamp(28px, 4vw, 52px);
+      font-size: clamp(14px, 3vw, 32px);
       font-weight: 400;
-      line-height: 1.2;
+      line-height: 1.35;
       color: var(--ink);
       letter-spacing: -0.01em;
       margin-bottom: var(--space-6);
+      max-width: 44ch;
     }
 
     .testimonial-role {
@@ -378,16 +415,16 @@
     .testimonial-name {
       font-size: 13px;
       font-weight: 300;
-      color: var(--mid);
+      color: var(--ink);
       font-style: italic;
     }
 
     /* ── ABOUT ── */
     .about {
-      padding: var(--space-16) var(--page-x);
+      padding: var(--space-16) var(--page-x) var(--space-16) calc(var(--page-x) + 160px);
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: var(--space-10);
+      gap: var(--space-6);
       align-items: center;
       border-top: 1px solid var(--border);
     }
@@ -409,7 +446,7 @@
       font-weight: 300;
       line-height: 1.7;
       color: #555;
-      max-width: 38ch;
+      max-width: 44ch;
     }
 
     .about-cta {
@@ -466,12 +503,13 @@
       padding: var(--space-8) var(--page-x);
       border-top: 1px solid var(--border);
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
+      gap: var(--space-4);
     }
     .footer-copy {
       font-size: 12px;
-      color: var(--mid);
+      color: var(--ink);
       letter-spacing: 0.05em;
     }
     .footer-links {
@@ -481,8 +519,7 @@
     .footer-links a {
       font-size: 12px;
       letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--mid);
+      color: var(--ink);
       text-decoration: none;
       transition: color 0.2s;
     }
@@ -506,9 +543,14 @@
         gap: var(--space-5);
       }
       .t-num { font-size: 24px; }
+      .testimonial-quote {
+        font-size: calc(clamp(14px, 3vw, 32px) + 2px);
+        line-height: 1.55;
+      }
 
       .about {
         grid-template-columns: 1fr;
+        gap: calc(var(--space-6) + 20px);
       }
       .about-text { padding-right: 0; }
       .about-photo { max-width: 320px; }
@@ -608,27 +650,27 @@
     <div class="testimonial-content">
 
       <div class="testimonial-slide active">
-        <p class="testimonial-quote">"Their unwavering commitment to quality, their versatility and reliability truly makes them a great go-to choice for branding and design."</p>
-        <p class="testimonial-role">International Marketing Director at L'Oréal Paris</p>
-        <p class="testimonial-name">Mariana Zuluaga</p>
+        <p class="testimonial-quote">"Olga is a delight to work with. At Musa, she brought a strong sense of story, taste, and care to a luxury hospitality project. She has a rare ability to see both the bigger picture and the small nuances that make an experience feel memorable. Her warmth, enthusiasm, and artful eye made the process even better."</p>
+        <p class="testimonial-role">Marketing Director, Stay at Musa</p>
+        <p class="testimonial-name">Mariella Aguilera</p>
       </div>
 
       <div class="testimonial-slide">
-        <p class="testimonial-quote">"A rare talent who brings both strategic depth and creative brilliance to every project she touches."</p>
-        <p class="testimonial-role">CEO, Artistic Milliners</p>
-        <p class="testimonial-name">Ahmed Javed</p>
+        <p class="testimonial-quote">"Olga is a rare find. At TMRW, she brought strategic thinking alongside the creative instinct to pull things off. She doesn't just make things look good. She makes them work."</p>
+        <p class="testimonial-role">CEO, TMRW Learning</p>
+        <p class="testimonial-name">Lenny Ercoli</p>
       </div>
 
       <div class="testimonial-slide">
-        <p class="testimonial-quote">"Olga transformed our brand identity completely — the results speak for themselves in every customer interaction."</p>
-        <p class="testimonial-role">Founder, Star Fades International</p>
-        <p class="testimonial-name">Marcus Reid</p>
+        <p class="testimonial-quote">"Olga is an exceptional collaborator in complex technical environments. At Teck, she quickly got up to speed in the mining space and became a trusted partner to product and engineering teams. She has a rare ability to make sense of dense information, ask sharp questions, and turn complexity into clear direction."</p>
+        <p class="testimonial-role">Product Owner, Teck Resources</p>
+        <p class="testimonial-name">Pauline Schipani</p>
       </div>
 
       <div class="testimonial-slide">
-        <p class="testimonial-quote">"Working with Olga was an absolute pleasure. She understood our vision immediately and delivered beyond expectations."</p>
-        <p class="testimonial-role">Creative Director, Bryhel Cosmetics</p>
-        <p class="testimonial-name">Sofia Chen</p>
+        <p class="testimonial-quote">"Olga is a strategic design leader with a strong ability to bring people together around a shared vision. At Everest Group, she helped design earn a seat in the business, building trust across senior leaders and stakeholders. She listens deeply, brings people to the same page quickly, and holds a thoughtful, steady presence in every collaboration."</p>
+        <p class="testimonial-role">CEO, Everest Group</p>
+        <p class="testimonial-name">Tom Chang</p>
       </div>
 
     </div>
@@ -638,8 +680,8 @@
   <section class="about" id="about">
     <div class="about-text">
       <h2 class="about-heading">About</h2>
-      <p class="about-bio">I've always been curious about people. Over the years, that curiosity expanded beyond UX into a more holistic approach to strategy, communication, and systems thinking. Today, I help turn ambiguity into direction by asking the right questions and connecting ideas across disciplines.</p>
-      <p class="about-bio">For me, design is both a practice and a mindset — a way to live intentionally.</p>
+      <p class="about-bio">I've always been curious about people. Over the years, that curiosity expanded beyond UX into strategy, communication, and systems thinking. Today, I help turn ambiguity into direction by asking the right questions and connecting ideas across disciplines.</p>
+      <p class="about-bio">For me, design is both a practice and a mindset. A&nbsp;way to live intentionally.</p>
     </div>
     <div class="about-photo-wrap">
       <div class="portrait-wrap">
@@ -655,11 +697,9 @@
 
   <!-- FOOTER -->
   <footer>
-    <span class="footer-copy">© 2024 Olga Lissey</span>
+    <span class="footer-copy">olgalissey@proton.me</span>
     <div class="footer-links">
-      <a href="#">LinkedIn</a>
-      <a href="#">Instagram</a>
-      <a href="#">Email</a>
+      <a href="https://www.linkedin.com/in/olgalissey/" target="_blank" rel="noopener">LinkedIn</a>
     </div>
   </footer>
 
@@ -843,7 +883,7 @@
       function resize() {
         const hero = canvas.parentElement;
         const w = hero.offsetWidth + BLEED * 2;
-        const h = hero.offsetHeight + BLEED * 2;
+        const h = hero.offsetHeight + BLEED + 600; // extra bottom room for gradient to fully fade
         canvas.width = w;
         canvas.height = h;
         canvas.style.width = w + 'px';
