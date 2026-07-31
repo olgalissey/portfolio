@@ -47,15 +47,19 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #F5F5F5;
-      --ink: #222222;
-      --navy: #2a3c89;
+      --bg: #FBF6ED;
+      /* Reference palette: a cream ground and one ink. Everything muted is
+         that ink blended toward the background rather than a separate grey.
+         Duplicate declarations = solid fallback, then color-mix where supported. */
+      --ink: #121212;
       --orange: #f15823;
       --lime: #d3de50;
       --sky: #5ea7dc;
       --pink: #f6b3d0;
-      --mid: #999;
-      --border: #d8d8d8;
+      --mid: #6F6D6A;                                        /* ink 60% */
+      --mid: color-mix(in srgb, var(--ink) 60%, var(--bg));
+      --border: #DFDBD3;                                     /* ink 12% */
+      --border: color-mix(in srgb, var(--ink) 12%, var(--bg));
 
       --serif: 'PP Mori', system-ui, sans-serif;
       --sans: 'PP Mori', system-ui, sans-serif;
@@ -71,10 +75,18 @@
       --space-12: 96px;
       --space-16: 128px;
 
+      --body: var(--ink);          /* paragraph copy matches the titles */
+
       --page-x: clamp(24px, 5vw, 64px);
+      /* Single knob for the gap between sections. Adjacent sections each
+         contribute this, so the visible gap is twice the value. */
+      --section-y: var(--space-12);
     }
 
     html { scroll-behavior: smooth; }
+
+    /* Anchor targets would otherwise land beneath the sticky nav. */
+    #work, #about, .testimonials { scroll-margin-top: var(--nav-h, 97px); }
 
     body {
       background: var(--bg);
@@ -96,10 +108,29 @@
       justify-content: space-between;
       padding: var(--space-3) var(--page-x);
       border-bottom: 1px solid transparent;
-      transition: border-color 0.3s, background 0.3s;
+      transition: border-color 0.3s, background 0.3s, transform 0.35s ease;
     }
-    nav.scrolled { border-color: var(--border); background: rgba(245, 245, 245, 0.85); }
+    nav.scrolled { border-color: var(--border); background: var(--bg); }
 
+    /* Only go translucent where the blur actually renders — without it the
+       project cards would smear straight through the bar. */
+    @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      nav.scrolled {
+        background: color-mix(in srgb, var(--bg) 72%, transparent);
+        -webkit-backdrop-filter: saturate(180%) blur(14px);
+        backdrop-filter: saturate(180%) blur(14px);
+      }
+    }
+
+    /* Hide-on-scroll (mobile only — see the media query). */
+    nav.nav-hidden { transform: translateY(-100%); }
+
+    @media (prefers-reduced-motion: reduce) {
+      nav { transition: border-color 0.3s, background 0.3s; }
+      nav.nav-hidden { transform: none; }
+    }
+
+    .nav-logo img { height: 48px; }
     .nav-logo {
       font-family: var(--sans);
       font-size: 16px;
@@ -117,6 +148,7 @@
       list-style: none;
     }
     .nav-links a {
+      display: inline-block;
       font-size: 13px;
       font-weight: 500;
       letter-spacing: 0.12em;
@@ -124,7 +156,16 @@
       color: var(--ink);
       text-decoration: none;
       position: relative;
-      transition: color 0.2s ease, font-weight 0s;
+    }
+    /* An invisible bold copy of the label fixes each link at its bold width,
+       so going bold on hover can't reflow the nav and nudge its neighbour. */
+    .nav-links a::before {
+      content: attr(data-label);
+      display: block;
+      height: 0;
+      overflow: hidden;
+      visibility: hidden;
+      font-weight: 600;
     }
     .nav-links a::after {
       content: '';
@@ -133,228 +174,153 @@
       left: 0;
       width: 0;
       height: 1px;
-      background: var(--navy);
+      background: var(--ink);
       transition: width 0.25s ease;
     }
-    .nav-links a:not(.active):hover { color: var(--navy); font-weight: 600; }
-    .nav-links a.active { color: var(--navy); }
+    /* Hover: weight only, no underline. Guarded so it can't stick on touch. */
+    @media (hover: hover) {
+      .nav-links a:hover { font-weight: 600; }
+    }
+    /* Active keeps the underline; bold so the rule matches the text width. */
+    .nav-links a.active { font-weight: 600; }
     .nav-links a.active::after { width: 100%; }
 
     /* ── HERO ── */
-    .hero {
-      position: relative;
-      height: 50vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 var(--page-x) 48px;
-    }
-    .hero-canvas {
-      position: absolute;
-      top: -200px;
-      left: -200px;
-      pointer-events: none;
-      z-index: 0;
-      mix-blend-mode: multiply;
-    }
-    .hero-text {
-      position: relative;
-      z-index: 1;
-      font-family: 'EB Garamond', Georgia, serif;
-      font-size: clamp(36px, 6.5vw, 92px);
-      font-weight: 400;
-      color: var(--ink);
-      line-height: 1.05;
-      text-align: center;
-      max-width: 900px;
-      padding: 0 var(--page-x);
-      margin-right: auto;
-    }
-    .hero-badge {
-      position: absolute;
-      right: 48px;
-      bottom: 40px;
-      width: 100px;
-      height: 100px;
-      z-index: 2;
-    }
-    .hero-badge svg {
-      width: 100%;
-      height: 100%;
-      animation: spin 10s linear infinite;
-    }
-    .hero-badge-line {
-      position: absolute;
-      bottom: -48px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 1px;
-      height: 40px;
-      background: var(--ink);
-      opacity: 0.4;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    .hero { height: var(--space-8); }
 
     /* ── WORK SECTION ── */
     .work {
-      padding: 0 var(--page-x) var(--space-16);
-    }
-
-    .cursor-orb {
-      position: fixed;
-      width: 250px;
-      height: 250px;
-      border-radius: 50%;
-      filter: blur(72px);
-      opacity: 0;
-      pointer-events: none;
-      z-index: 999;
-      transform: translate(-50%, -50%);
-      transition: opacity 0.6s ease;
-      background: #5ea7dc;
-      will-change: transform, background-color;
-    }
-    .cursor-orb.visible { opacity: 0.35; }
-
-    .work-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      padding-bottom: var(--space-3);
-      margin-bottom: var(--space-2);
-    }
-
-    .work-label {
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--ink);
-    }
-
-    .work-filters {
-      display: flex;
-      gap: var(--space-4);
-      list-style: none;
-    }
-    .work-filters button {
-      font-family: var(--sans);
-      font-size: 13px;
-      font-weight: 400;
-      letter-spacing: 0.06em;
-      color: var(--ink);
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-      transition: color 0.2s;
-      position: relative;
-    }
-    .work-filters button::after {
-      content: '';
-      position: absolute;
-      bottom: -3px;
-      left: 0;
-      width: 0;
-      height: 1px;
-      background: var(--navy);
-    }
-    .work-filters button.active {
-      color: var(--navy);
-      font-weight: 500;
-    }
-    .work-filters button.active::after { width: 100%; }
-    .work-filters button:not(.active):hover { color: var(--navy); font-weight: 600; }
-
-    .work-grid {
+      /* Stagger between parked cards, and how many there are — the side
+         panel uses both so it centres on the middle of the stack. */
+      --card-step: 12px;
+      --card-count: 4;
+      --stack-top: calc(var(--nav-h, 97px) + var(--space-3));
+      padding: 0 var(--page-x) var(--section-y);
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: var(--space-4) var(--space-5);
+      column-gap: var(--space-8);
+      row-gap: 0;
+      align-items: start;
+    }
+
+
+
+    /* ── LEFT: stacking project cards ──
+       Each card sticks below the nav; JS eases its arrival so the stack
+       settles instead of snapping (soft-close). */
+    .work-stack {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+    /* Without this the final card sits flush with the stack's bottom edge and
+       sticky has no room to hold it, so it alone never parks. The spacer is
+       one card tall, giving every card the same dwell before it's covered. */
+    .work-stack::after {
+      content: '';
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      flex: none;
+      pointer-events: none;
     }
 
     .project-card {
-      cursor: pointer;
-      position: relative;
+      position: sticky;
+      /* --nav-h is measured in JS so cards never rest under the nav. */
+      top: calc(var(--stack-top) + var(--i) * var(--card-step));
+      aspect-ratio: 4 / 3;
       border-radius: 4px;
       overflow: hidden;
-    }
-    .project-card.hidden { display: none; }
-
-    .project-orb {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      translate: -50% -50%;
-      width: 98%;
-      aspect-ratio: 1;
-      border-radius: 50%;
-      filter: blur(72px);
-      opacity: 0;
-      transition: opacity 0.7s ease;
-      z-index: -1;
-      pointer-events: none;
-    }
-    .project-card:hover .project-orb { opacity: 0.55; }
-    .project-card:hover .project-orb--strong { opacity: 0.85; }
-
-    .project-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: var(--space-4);
-      padding-top: var(--space-2);
-      padding-bottom: var(--space-2);
-      border-top: 1px solid var(--ink);
-      margin-bottom: var(--space-2);
+      background: var(--card-color);
+      cursor: pointer;
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.12);
+      will-change: transform;
     }
 
-    .project-client {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--ink);
-      white-space: nowrap;
-    }
-
-    .project-services {
-      font-size: 10px;
-      font-weight: 400;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--ink);
-      text-align: right;
-      line-height: 1.5;
-    }
-
-    .project-image {
-      width: 100%;
-      aspect-ratio: 4 / 3;
-      overflow: hidden;
-      background: #d4d4d4;
-    }
+    .project-image { position: absolute; inset: 0; overflow: hidden; }
     .project-image img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
-      transition: transform 0.5s ease;
+      transition: transform 0.7s ease;
     }
-    .project-card:hover .project-image img {
-      transform: scale(1.03);
-    }
+    .project-card:hover .project-image img { transform: scale(1.04); }
 
-    /* Placeholder for cards without images */
-    .project-image.placeholder {
-      background: #e0e0e0;
+    /* "/ View" label on hover */
+    .project-view {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      letter-spacing: 0.04em;
+      color: #fff;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+    }
+    .project-card:hover .project-view { opacity: 1; }
+
+    /* ── RIGHT: sticky panel that tracks the active project ── */
+    .work-side {
+      position: sticky;
+      /* Same box as a card, offset to the middle of the stagger so the copy
+         sits centred on the artwork for every project, first to last. */
+      top: calc(var(--stack-top) + (var(--card-count) - 1) * var(--card-step) / 2);
+      aspect-ratio: 4 / 3;
+      display: flex;
+      align-items: center;
+    }
+    .work-side-inner { position: relative; width: 100%; }
+
+    .project-info {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      transform: translateY(-50%);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.45s ease;
+    }
+    .project-info.active { opacity: 1; visibility: visible; }
+
+    .project-title-row {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+    .project-client {
+      font-family: var(--serif);
+      font-size: clamp(22px, 2.4vw, 32px);
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+    .project-services {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-top: var(--space-3);
+    }
+    .project-desc {
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--body);
+      max-width: 42ch;
     }
 
     /* ── TESTIMONIALS ── */
     .testimonials {
-      padding: var(--space-16) var(--page-x);
+      padding: var(--section-y) var(--page-x);
       display: grid;
       grid-template-columns: 80px 1fr;
       gap: var(--space-8);
@@ -393,6 +359,18 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    /* Slides enter from the direction of travel so a swipe reads correctly. */
+    .testimonial-slide.from-right { animation: tFromRight 0.35s ease; }
+    .testimonial-slide.from-left  { animation: tFromLeft  0.35s ease; }
+    @keyframes tFromRight {
+      from { opacity: 0; transform: translateX(28px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes tFromLeft {
+      from { opacity: 0; transform: translateX(-28px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
     .testimonial-quote {
       font-family: var(--serif);
       font-size: clamp(14px, 3vw, 32px);
@@ -421,7 +399,7 @@
 
     /* ── ABOUT ── */
     .about {
-      padding: var(--space-16) var(--page-x) var(--space-16) calc(var(--page-x) + 160px);
+      padding: var(--section-y) var(--page-x) var(--section-y) calc(var(--page-x) + 160px);
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: var(--space-6);
@@ -445,25 +423,11 @@
       font-size: 16px;
       font-weight: 300;
       line-height: 1.7;
-      color: #555;
+      color: var(--body);
       max-width: 44ch;
     }
+    .about-bio + .about-bio { margin-top: var(--space-2); }
 
-    .about-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: var(--space-5);
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--navy);
-      text-decoration: none;
-      transition: gap 0.25s;
-    }
-    .about-cta:hover { gap: 16px; }
-    .about-cta::after { content: '→'; }
 
     /* Portrait animation */
     @keyframes portrait-in    { from { transform: translateY(26px) scale(.98); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
@@ -523,26 +487,88 @@
       text-decoration: none;
       transition: color 0.2s;
     }
-    .footer-links a:hover { color: var(--navy); }
+    .footer-links a:hover { text-decoration: underline; text-underline-offset: 4px; }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
-      .hero {
+      /* Half the desktop rhythm: 256px of stacked padding between sections
+         is roughly a third of a phone screen of dead space. */
+      :root { --section-y: var(--space-8); }
+      .hero { height: var(--space-4); }
+      footer { padding: var(--space-6) var(--page-x); }
+
+      /* Single column, no stacking: each project's copy sits directly
+         under its own card (JS moves the panels inline). */
+      .work {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      .work-side { display: none; }
+      .work-stack::after { display: none; }
+      /* Flex gap would apply between a card and its own copy as well as
+         between projects, so spacing is set per relationship instead. */
+      .work-stack { gap: 0; }
+
+      .project-card { position: static; }
+      .project-view { display: none; }
+
+      .project-info {
+        position: static;
+        transform: none;
+        opacity: 1;
+        visibility: visible;
+        margin-top: var(--space-2);      /* card → title */
+      }
+      .project-title-row { margin-bottom: var(--space-1); }   /* title → body */
+      .project-services  { margin-top: var(--space-2); }      /* body → tag  */
+      .project-desc { font-size: 15px; }
+
+      /* Only gap that separates one project from the next. */
+      .project-info + .project-card { margin-top: calc(var(--space-6) + var(--space-3)); }
+
+      /* Numbers become a progress indicator under the quote. */
+      .testimonials {
         grid-template-columns: 1fr;
         gap: var(--space-5);
-        padding-top: var(--space-8);
+        /* Fill the screen below the sticky nav. svh is the viewport with
+           browser chrome shown — 100vh measures behind it and would clip
+           under the address bar. Subtracting the nav keeps the quote
+           optically centred in the area the reader can actually see. */
+        min-height: calc(100vh - var(--nav-h, 83px));
+        min-height: calc(100svh - var(--nav-h, 83px));
+        align-content: center;
       }
-      .hero-badge { width: 80px; height: 80px; }
-
-      .work-grid { grid-template-columns: 1fr; }
-
-      .work-header { flex-direction: column; gap: var(--space-3); }
-
-      .testimonials {
-        grid-template-columns: 48px 1fr;
-        gap: var(--space-5);
+      .testimonial-numbers {
+        order: 2;
+        flex-direction: row;
+        gap: var(--space-2);
+        align-items: center;
+        padding-top: 0;
       }
-      .t-num { font-size: 24px; }
+      .t-num {
+        /* font-size:0 hides the digit visually but keeps it as the
+           accessible name for the tab, unlike display:none. */
+        font-size: 0;
+        width: 8px;
+        height: 8px;
+        flex: none;
+        border-radius: 999px;
+        background: var(--border);
+        transition: width 0.35s ease, background-color 0.35s ease;
+      }
+      .t-num.active {
+        width: 28px;
+        background: var(--ink);
+      }
+      /* The dot is 8px, far under the ~44px minimum tap target, so the
+         hit area is widened invisibly instead of enlarging the dot. */
+      .t-num { position: relative; }
+      .t-num::after {
+        content: '';
+        position: absolute;
+        inset: -18px -8px;
+      }
+      .testimonial-content { min-height: 0; }
       .testimonial-quote {
         font-size: calc(clamp(14px, 3vw, 32px) + 2px);
         line-height: 1.55;
@@ -551,7 +577,10 @@
       .about {
         grid-template-columns: 1fr;
         gap: calc(var(--space-6) + 20px);
+        padding-left: var(--page-x);
       }
+
+      .nav-logo img { height: 34px; }
       .about-text { padding-right: 0; }
       .about-photo { max-width: 320px; }
     }
@@ -566,76 +595,82 @@
     </filter>
   </svg>
 
-  <div class="cursor-orb" id="cursor-orb"></div>
 
   <!-- NAV -->
   <nav id="nav">
-    <a href="#" class="nav-logo"><img src="Logo.png" alt="Olga Lissey" style="height: 32px; display: block;" /></a>
+    <a href="#" class="nav-logo"><img src="Logo.png" alt="Olga Lissey" style="display: block;" /></a>
     <ul class="nav-links">
-      <li><a href="#work">Work</a></li>
-      <li><a href="#about">About</a></li>
+      <li><a href="#work" data-label="Work">Work</a></li>
+      <li><a href="#about" data-label="About">About</a></li>
     </ul>
   </nav>
 
   <!-- HERO -->
-  <section class="hero">
-    <canvas class="hero-canvas" id="heroCanvas"></canvas>
-  </section>
+  <section class="hero"></section>
 
   <!-- SELECTED WORK -->
   <section class="work" id="work">
-    <div class="work-header">
-      <span class="work-label">Selected Work</span>
-      <ul class="work-filters">
-        <li><button class="active" data-filter="all">All</button></li>
-        <li><button data-filter="strategy">Strategy &amp; UX</button></li>
-        <li><button data-filter="creative">Creative</button></li>
-      </ul>
+
+    <div class="work-stack" id="workStack">
+
+      <article class="project-card" data-index="0" style="--i: 0; --card-color: #f15823;">
+        <span class="project-view">/ View</span>
+      </article>
+
+      <article class="project-card" data-index="1" style="--i: 1; --card-color: #5ea7dc;">
+        <span class="project-view">/ View</span>
+      </article>
+
+      <article class="project-card" data-index="2" style="--i: 2; --card-color: #f6b3d0;">
+        <span class="project-view">/ View</span>
+      </article>
+
+      <article class="project-card" data-index="3" style="--i: 3; --card-color: #e2e87c;">
+        <span class="project-view">/ View</span>
+      </article>
     </div>
 
-    <div class="work-grid" id="work-grid">
+    <aside class="work-side">
+      <div class="work-side-inner" id="workSide">
 
-      <article class="project-card" data-category="creative strategy" data-color="#5ea7dc">
-        <div class="project-orb" style="background: #5ea7dc;"></div>
-        <div class="project-meta">
-          <span class="project-client">Bryhel Cosmetics</span>
-          <span class="project-services">Brand Identity, Web Design<br>&amp; Development</span>
+        <div class="project-info active" data-index="0">
+          <div class="project-title-row">
+            <span class="project-client">Stay at Musa</span>
+          </div>
+          <p class="project-desc">A luxury hospitality brand where story, taste, and the small
+            nuances of a stay shape how the whole experience feels.</p>
+          <p class="project-services">Service Design</p>
         </div>
-        <div class="project-image">
-          <img src="blue.jpg" alt="Bryhel Cosmetics project" />
-        </div>
-      </article>
 
-      <article class="project-card" data-category="creative" data-color="#f15823">
-        <div class="project-orb" style="background: #f15823;"></div>
-        <div class="project-meta">
-          <span class="project-client">Artistic Milliners</span>
-          <span class="project-services">Editorial Design,<br>Product Photography</span>
+        <div class="project-info" data-index="1">
+          <div class="project-title-row">
+            <span class="project-client">Teck Resources</span>
+          </div>
+          <p class="project-desc">Making sense of dense technical information in the mining space,
+            and turning it into clear direction for product and engineering teams.</p>
+          <p class="project-services">UX Strategy, Service Design</p>
         </div>
-        <div class="project-image">
-          <img src="shapesforms.jpg" alt="Artistic Milliners project" />
-        </div>
-      </article>
 
-      <article class="project-card" data-category="creative strategy" data-color="#f6b3d0">
-        <div class="project-orb" style="background: #f6b3d0;"></div>
-        <div class="project-meta">
-          <span class="project-client">Star Fades International</span>
-          <span class="project-services">Brand Identity, Web Design, Web Development,<br>Sales Presentations, Social Media Content,<br>Signage, Editorial Design, Merch &amp; Events Graphics</span>
+        <div class="project-info" data-index="2">
+          <div class="project-title-row">
+            <span class="project-client">Tangerine Bank</span>
+          </div>
+          <p class="project-desc">Everyday banking flows designed to stay calm and legible at the
+            moments people are least patient.</p>
+          <p class="project-services">UX Design</p>
         </div>
-        <div class="project-image placeholder"></div>
-      </article>
 
-      <article class="project-card" data-category="creative" data-color="#e2e87c">
-        <div class="project-orb project-orb--strong" style="background: #e2e87c;"></div>
-        <div class="project-meta">
-          <span class="project-client">Denim Dudes</span>
-          <span class="project-services">Brand Identity</span>
+        <div class="project-info" data-index="3">
+          <div class="project-title-row">
+            <span class="project-client">Denim Dudes</span>
+          </div>
+          <p class="project-desc">A brand identity built around craft and material, made to work
+            as well on a garment tag as it does on screen.</p>
+          <p class="project-services">Brand Identity</p>
         </div>
-        <div class="project-image placeholder"></div>
-      </article>
 
-    </div>
+      </div>
+    </aside>
   </section>
 
   <!-- TESTIMONIALS -->
@@ -656,7 +691,7 @@
       </div>
 
       <div class="testimonial-slide">
-        <p class="testimonial-quote">"Olga is a rare find. At TMRW, she brought strategic thinking alongside the creative instinct to pull things off. She doesn't just make things look good. She makes them work."</p>
+        <p class="testimonial-quote">"Olga's the person you want in the room when a project could go a dozen different directions. At TMRW, she paired sharp strategic thinking with the creative instinct to actually get things made. More than anything, we trusted her judgment. She got the calls right."</p>
         <p class="testimonial-role">CEO, TMRW Learning</p>
         <p class="testimonial-name">Lenny Ercoli</p>
       </div>
@@ -668,7 +703,7 @@
       </div>
 
       <div class="testimonial-slide">
-        <p class="testimonial-quote">"Olga is a strategic design leader with a strong ability to bring people together around a shared vision. At Everest Group, she helped design earn a seat in the business, building trust across senior leaders and stakeholders. She listens deeply, brings people to the same page quickly, and holds a thoughtful, steady presence in every collaboration."</p>
+        <p class="testimonial-quote">"At Everest Group, Olga built our design practice from the ground up and assembled the team behind it. She made design an integral part of how we approached product decisions, which contributed significantly to the success of our commercial real estate platform."</p>
         <p class="testimonial-role">CEO, Everest Group</p>
         <p class="testimonial-name">Tom Chang</p>
       </div>
@@ -680,7 +715,8 @@
   <section class="about" id="about">
     <div class="about-text">
       <h2 class="about-heading">About</h2>
-      <p class="about-bio">I've always been curious about people. Over the years, that curiosity expanded beyond UX into strategy, communication, and systems thinking. Today, I help turn ambiguity into direction by asking the right questions and connecting ideas across disciplines.</p>
+      <p class="about-bio">I've always been curious about people. That curiosity first led me to cognitive psychology, then to UX, and from there into strategy, communication, and systems thinking.</p>
+      <p class="about-bio">Today, I help teams make sense of complexity and see the patterns across disciplines.</p>
       <p class="about-bio">For me, design is both a practice and a mindset. A&nbsp;way to live intentionally.</p>
     </div>
     <div class="about-photo-wrap">
@@ -705,98 +741,6 @@
 
   <script>
 
-    // Cursor orb — three-zone logic: work / nav / everything else
-    const workSection = document.getElementById('work');
-    const cursorOrb   = document.getElementById('cursor-orb');
-    const navEl       = document.getElementById('nav');
-
-    function hexToRgb(hex) {
-      return [
-        parseInt(hex.slice(1,3), 16),
-        parseInt(hex.slice(3,5), 16),
-        parseInt(hex.slice(5,7), 16)
-      ];
-    }
-    function lerpColor(a, b, t) {
-      return a.map((v, i) => Math.round(v + (b[i] - v) * t));
-    }
-
-    let orbX = window.innerWidth / 2;
-    let orbY = window.innerHeight / 2;
-    let targetX = orbX, targetY = orbY;
-    let currentColor = hexToRgb('#5ea7dc');
-    let targetColor  = hexToRgb('#5ea7dc');
-
-    // zone: 'work' | 'nav' | 'other'
-    let zone = 'other';
-    let navFadeTimer = null;
-
-    function setOrbVisible(visible, duration) {
-      cursorOrb.style.transition = `opacity ${duration} ease`;
-      cursorOrb.classList.toggle('visible', visible);
-    }
-
-    document.addEventListener('mousemove', e => {
-      const cx = e.clientX, cy = e.clientY;
-
-      // Only update target position when cursor is in Work or Nav
-      // (so orb stays put while in nav)
-      const workRect = workSection.getBoundingClientRect();
-      const navRect  = navEl.getBoundingClientRect();
-
-      const inWork = cy >= workRect.top && cy <= workRect.bottom
-                  && cx >= workRect.left && cx <= workRect.right;
-      const inNav  = cy >= navRect.top  && cy <= navRect.bottom
-                  && cx >= navRect.left && cx <= navRect.right;
-      const inFilters = !!e.target.closest('.work-filters') || !!e.target.closest('.work-header');
-
-      const newZone = inFilters ? 'other' : inWork ? 'work' : inNav ? 'nav' : 'other';
-
-      if (newZone !== zone) {
-        zone = newZone;
-
-        if (zone === 'work') {
-          // Cancel any pending nav fade, snap back to visible
-          clearTimeout(navFadeTimer);
-          navFadeTimer = null;
-          setOrbVisible(true, '0.4s');
-
-        } else if (zone === 'nav') {
-          // Hold position — start 300ms delay before fading
-          clearTimeout(navFadeTimer);
-          navFadeTimer = setTimeout(() => {
-            setOrbVisible(false, '0.8s');
-          }, 300);
-
-        } else {
-          // Any other section — immediate fade
-          clearTimeout(navFadeTimer);
-          navFadeTimer = null;
-          setOrbVisible(false, '0.5s');
-        }
-      }
-
-      // Only lerp target when cursor is in Work
-      if (inWork) {
-        targetX = cx;
-        targetY = cy;
-        const card = e.target.closest('.project-card[data-color]');
-        if (card) targetColor = hexToRgb(card.dataset.color);
-      }
-    });
-
-    function animateOrb() {
-      orbX += (targetX - orbX) * 0.06;
-      orbY += (targetY - orbY) * 0.06;
-      currentColor = lerpColor(currentColor, targetColor, 0.04);
-
-      cursorOrb.style.left       = orbX + 'px';
-      cursorOrb.style.top        = orbY + 'px';
-      cursorOrb.style.background = `rgb(${currentColor.join(',')})`;
-
-      requestAnimationFrame(animateOrb);
-    }
-    animateOrb();
 
     // Active nav on scroll
     const navLinkWork  = document.querySelector('.nav-links a[href="#work"]');
@@ -827,139 +771,193 @@
       nav.classList.toggle('scrolled', window.scrollY > 24);
     }, { passive: true });
 
-    // Work filters
-    const filterBtns = document.querySelectorAll('.work-filters button');
-    const cards = document.querySelectorAll('.project-card');
+    // Publish the nav's real height so sticky offsets can clear it.
+    function measureNav() {
+      document.documentElement.style.setProperty('--nav-h', nav.offsetHeight + 'px');
+    }
+    measureNav();
+    window.addEventListener('resize', measureNav);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureNav);
 
-    filterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+    // ── PROJECT STACK ──
+    // Cards are sticky, so they snap to their resting offset. To get the
+    // soft-close feel we pull each card toward its rest point early and
+    // ease the last stretch, so it settles instead of stopping dead.
+    const stack = document.getElementById('workStack');
+    const projectCards = [...document.querySelectorAll('.project-card')];
+    const projectInfos = [...document.querySelectorAll('.project-info')];
+    const DAMP = 320;   // px over which the arrival is eased
 
-        const filter = btn.dataset.filter;
-        cards.forEach(card => {
-          const cat = card.dataset.category;
-          if (filter === 'all' || cat.includes(filter)) {
-            card.classList.remove('hidden');
-          } else {
-            card.classList.add('hidden');
+    function softClose() {
+      // Transforms don't affect layout, so the stack's own box stays put.
+      const stackTop = stack.getBoundingClientRect().top;
+
+      projectCards.forEach(card => {
+        // Measure the untransformed position so the maths stays stable.
+        card.style.transform = '';
+        const rest = parseFloat(getComputedStyle(card).top) || 0;
+        const natural = card.getBoundingClientRect().top;
+        const dist = natural - rest;
+
+        if (dist > 0 && dist < DAMP) {
+          const t = dist / DAMP;                 // 1 → entering, 0 → landed
+          const eased = DAMP * t * t;            // decelerate into place
+          // Easing pulls a card up to DAMP/4 early; never let that lift it
+          // above the top of the stack, or it rides over the section label.
+          const top = Math.max(rest + eased, stackTop);
+          card.style.transform = `translateY(${top - natural}px)`;
+        }
+      });
+    }
+
+    // The active project is the last card that has reached the top of the stack.
+    function updateActiveProject() {
+      const line = window.innerHeight * 0.45;
+      let active = 0;
+      projectCards.forEach((card, i) => {
+        if (card.getBoundingClientRect().top <= line) active = i;
+      });
+      projectInfos.forEach(info => {
+        info.classList.toggle('active', +info.dataset.index === active);
+      });
+    }
+
+    // On narrow screens there is no side panel, so each project's copy
+    // moves inline under its own card.
+    const sidePanel = document.getElementById('workSide');
+    const narrow = window.matchMedia('(max-width: 768px)');
+
+    function placeProjectInfo() {
+      if (narrow.matches) {
+        projectCards.forEach((card, i) => {
+          if (projectInfos[i] && card.nextElementSibling !== projectInfos[i]) {
+            card.after(projectInfos[i]);
           }
         });
+      } else {
+        projectInfos.forEach(info => {
+          if (info.parentElement !== sidePanel) sidePanel.appendChild(info);
+        });
+      }
+    }
+    placeProjectInfo();
+    narrow.addEventListener('change', placeProjectInfo);
+
+    let stackTick = false;
+    function onStackScroll() {
+      if (stackTick) return;
+      stackTick = true;
+      requestAnimationFrame(() => {
+        if (!narrow.matches) {
+          softClose();
+          updateActiveProject();
+        }
+        stackTick = false;
       });
-    });
+    }
+    window.addEventListener('scroll', onStackScroll, { passive: true });
+    window.addEventListener('resize', onStackScroll);
+    onStackScroll();
+
+    // ── HIDE-ON-SCROLL NAV (mobile) ──
+    // Stays put through the first project; past that, scrolling down tucks it
+    // away and any upward scroll brings it back.
+    let lastY = window.scrollY;
+
+    function updateNavVisibility() {
+      const y = window.scrollY;
+
+      if (!narrow.matches) {              // desktop keeps the nav pinned
+        nav.classList.remove('nav-hidden');
+        lastY = y;
+        return;
+      }
+
+      // "Past the first project" = its card AND its copy are off the top.
+      const first = projectInfos[0] || projectCards[0];
+      const passed = first ? first.getBoundingClientRect().bottom < 0 : y > innerHeight;
+
+      if (!passed || y <= 0) {
+        nav.classList.remove('nav-hidden');
+      } else if (y > lastY + 4) {         // 4px deadzone absorbs momentum jitter
+        nav.classList.add('nav-hidden');
+      } else if (y < lastY - 4) {
+        nav.classList.remove('nav-hidden');
+      }
+      lastY = y;
+    }
+
+    let navTick = false;
+    window.addEventListener('scroll', () => {
+      if (navTick) return;
+      navTick = true;
+      requestAnimationFrame(() => { updateNavVisibility(); navTick = false; });
+    }, { passive: true });
+    narrow.addEventListener('change', updateNavVisibility);
+    updateNavVisibility();
 
     // Testimonial switcher
     const nums = document.querySelectorAll('.t-num');
     const slides = document.querySelectorAll('.testimonial-slide');
 
-    function showTestimonial(index) {
+    const currentTestimonial = () =>
+      [...nums].findIndex(n => n.classList.contains('active'));
+
+    function showTestimonial(index, dir) {
       nums.forEach(n => n.classList.remove('active'));
-      slides.forEach(s => s.classList.remove('active'));
+      slides.forEach(s => s.classList.remove('active', 'from-left', 'from-right'));
       nums[index].classList.add('active');
+      if (dir) slides[index].classList.add(dir === 'next' ? 'from-right' : 'from-left');
       slides[index].classList.add('active');
     }
 
+    function goTo(index) {
+      const cur = currentTestimonial();
+      if (index === cur) return;
+      showTestimonial(index, index > cur ? 'next' : 'prev');
+    }
+
+    function step(delta) {
+      const cur = currentTestimonial();
+      const next = (cur + delta + nums.length) % nums.length;
+      showTestimonial(next, delta > 0 ? 'next' : 'prev');
+    }
+
     nums.forEach(num => {
-      num.addEventListener('click', () => showTestimonial(+num.dataset.index));
+      num.addEventListener('click', () => goTo(+num.dataset.index));
       num.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') showTestimonial(+num.dataset.index);
+        if (e.key === 'Enter' || e.key === ' ') goTo(+num.dataset.index);
       });
     });
 
     // Auto-advance testimonials
-    let tInterval = setInterval(() => {
-      const current = [...nums].findIndex(n => n.classList.contains('active'));
-      showTestimonial((current + 1) % nums.length);
-    }, 5000);
+    let tInterval = setInterval(() => step(1), 5000);
+    const stopAuto = () => clearInterval(tInterval);
 
-    document.querySelector('.testimonials').addEventListener('mouseenter', () => clearInterval(tInterval));
-    // ── HERO CANVAS BLOBS ──
-    (function() {
-      const canvas = document.getElementById('heroCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const BLEED = 200;
+    const tSection = document.querySelector('.testimonials');
+    tSection.addEventListener('mouseenter', stopAuto);
 
-      function resize() {
-        const hero = canvas.parentElement;
-        const w = hero.offsetWidth + BLEED * 2;
-        const h = hero.offsetHeight + BLEED + 600; // extra bottom room for gradient to fully fade
-        canvas.width = w;
-        canvas.height = h;
-        canvas.style.width = w + 'px';
-        canvas.style.height = h + 'px';
-      }
-      resize();
-      window.addEventListener('resize', resize);
+    // ── SWIPE (touch) ──
+    let sx = 0, sy = 0, tracking = false;
 
-      // Blobs orbit around a fixed center point in canvas coordinates.
-      // Canvas y=0 is BLEED_TOP px above the hero top edge.
-      // Hero visual center in canvas coords = BLEED_TOP + hero.height/2.
-      const blobs = [
-        {
-          color: '38,34,30',
-          rFactor: 0.21,
-          acx: 0.15, acy: 0.35,
-          orbitX: 30, orbitY: 15,
-          speed: 16000,
-          phase: 0,
-          clockwise: 1,
-          opacity: 0.85
-        },
-        {
-          color: '180,140,85',      // richer warm gold
-          rFactor: 0.32,
-          acx: 0.65, acy: 0.65,    // center-right, lower half
-          orbitX: 40, orbitY: 30,
-          speed: 22000,
-          phase: Math.PI,
-          clockwise: -1
-        }
-      ];
+    tSection.addEventListener('touchstart', e => {
+      const t = e.changedTouches[0];
+      sx = t.clientX; sy = t.clientY; tracking = true;
+    }, { passive: true });
 
-      function draw(ts) {
-        const hero = canvas.parentElement;
-        const heroW = hero.offsetWidth;
-        const heroH = hero.offsetHeight;
-        const canvasW = canvas.width;
-        ctx.clearRect(0, 0, canvasW, canvas.height);
-
-        blobs.forEach(b => {
-          const t = (ts / b.speed) * Math.PI * 2 + b.phase;
-          const ocx = BLEED + b.acx * heroW;
-          const ocy = BLEED + b.acy * heroH;
-          const cx = ocx + Math.sin(t * b.clockwise) * b.orbitX;
-          const cy = ocy + Math.cos(t * b.clockwise) * b.orbitY;
-          const r = b.rFactor * canvasW;
-
-          ctx.save();
-          ctx.translate(cx, cy);
-          const op = b.opacity ?? 1;
-          const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
-          grad.addColorStop(0,   `rgba(${b.color}, ${(0.55 * op).toFixed(2)})`);
-          grad.addColorStop(0.4, `rgba(${b.color}, ${(0.25 * op).toFixed(2)})`);
-          grad.addColorStop(1,   `rgba(${b.color}, 0)`);
-          ctx.beginPath();
-          ctx.arc(0, 0, r, 0, Math.PI * 2);
-          ctx.fillStyle = grad;
-          ctx.fill();
-          ctx.restore();
-        });
-
-        requestAnimationFrame(draw);
-      }
-      requestAnimationFrame(draw);
-    })();
-
-    function alignHeroToLogo() {
-      const logo = document.querySelector('.nav-logo');
-      const heroText = document.querySelector('.hero-text');
-      if (!logo || !heroText) return;
-      const logoRight = logo.getBoundingClientRect().right;
-      heroText.style.paddingLeft = logoRight + 'px';
-    }
-    alignHeroToLogo();
-    window.addEventListener('resize', alignHeroToLogo);
+    tSection.addEventListener('touchend', e => {
+      if (!tracking) return;
+      tracking = false;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - sx;
+      const dy = t.clientY - sy;
+      // Only a clearly horizontal flick counts, so vertical page scrolling
+      // through the section is never hijacked. Listeners stay passive and
+      // never preventDefault for the same reason.
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      stopAuto();                 // the reader has taken over
+      step(dx < 0 ? 1 : -1);      // drag left → next
+    }, { passive: true });
   </script>
 
 </body>
