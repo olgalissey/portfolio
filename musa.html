@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stay at Musa — Olga Lissey</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=EB+Garamond:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    /* ── PROJECT PAGE ── */
+    .project-hero {
+      padding: var(--space-10) var(--page-x) var(--section-y);
+    }
+
+    .project-name {
+      font-family: var(--serif);
+      font-size: clamp(40px, 7vw, 96px);
+      font-weight: 400;
+      line-height: 1.02;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    /* Content goes here — intentionally empty for now. */
+    .project-body {
+      padding: 0 var(--page-x) var(--section-y);
+    }
+
+    @media (max-width: 768px) {
+      .project-hero { padding-top: var(--space-6); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="index.html" class="nav-logo"><img src="Logo.png" alt="Olga Lissey" style="display: block;" /></a>
+    <ul class="nav-links">
+      <li><a href="index.html#work" data-label="Work">Work</a></li>
+      <li><a href="index.html#about" data-label="About">About</a></li>
+    </ul>
+  </nav>
+
+  <!-- PROJECT HEADER -->
+  <header class="project-hero">
+    <h1 class="project-name">Stay at Musa</h1>
+  </header>
+
+  <!-- PROJECT CONTENT -->
+  <main class="project-body">
+    <!-- Empty for now. -->
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-copy">olgalissey@proton.me</span>
+    <div class="footer-links">
+      <a href="https://www.linkedin.com/in/olgalissey/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </footer>
+
+  <script>
+    // Nav shares the shared.css chrome, so it needs the same two behaviours:
+    // the scrolled state, and publishing its height for sticky offsets.
+    const nav = document.getElementById('nav');
+
+    function measureNav() {
+      document.documentElement.style.setProperty('--nav-h', nav.offsetHeight + 'px');
+    }
+    measureNav();
+    window.addEventListener('resize', measureNav);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureNav);
+
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 24);
+    }, { passive: true });
+  </script>
+
+</body>
+</html>

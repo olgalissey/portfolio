@@ -1,0 +1,218 @@
+/* ─────────────────────────────────────────────────────────────
+   Shared foundation: fonts, palette tokens, base type, nav, footer.
+   Linked by index.html and every project page, so the palette and
+   page chrome live in exactly one place. Page-specific CSS stays
+   inline in each page's own <style> block.
+   ───────────────────────────────────────────────────────────── */
+
+@font-face {
+  font-family: 'PP Mori';
+  src: url('PP Mori - Free for Personal Use v1.0/PPMori-Extralight.otf') format('opentype');
+  font-weight: 200;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'PP Mori';
+  src: url('PP Mori - Free for Personal Use v1.0/PPMori-ExtralightItalic.otf') format('opentype');
+  font-weight: 200;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'PP Mori';
+  src: url('PP Mori - Free for Personal Use v1.0/PPMori-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'PP Mori';
+  src: url('PP Mori - Free for Personal Use v1.0/PPMori-RegularItalic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'PP Mori';
+  src: url('PP Mori - Free for Personal Use v1.0/PPMori-SemiBold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'PP Mori';
+  src: url('PP Mori - Free for Personal Use v1.0/PPMori-SemiBoldItalic.otf') format('opentype');
+  font-weight: 600;
+  font-style: italic;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #FBF6ED;
+  /* Reference palette: a cream ground and one ink. Everything muted is
+     that ink blended toward the background rather than a separate grey.
+     Duplicate declarations = solid fallback, then color-mix where supported. */
+  --ink: #121212;
+  --orange: #f15823;
+  --lime: #d3de50;
+  --sky: #5ea7dc;
+  --pink: #f6b3d0;
+  --mid: #6F6D6A;                                        /* ink 60% */
+  --mid: color-mix(in srgb, var(--ink) 60%, var(--bg));
+  --border: #DFDBD3;                                     /* ink 12% */
+  --border: color-mix(in srgb, var(--ink) 12%, var(--bg));
+
+  --serif: 'PP Mori', system-ui, sans-serif;
+  --sans: 'PP Mori', system-ui, sans-serif;
+
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --space-10: 80px;
+  --space-12: 96px;
+  --space-16: 128px;
+
+  --body: var(--ink);          /* paragraph copy matches the titles */
+
+  --page-x: clamp(24px, 5vw, 64px);
+  /* Single knob for the gap between sections. Adjacent sections each
+     contribute this, so the visible gap is twice the value. */
+  --section-y: var(--space-12);
+}
+
+html { scroll-behavior: smooth; }
+
+/* Anchor targets would otherwise land beneath the sticky nav. */
+#work, #about, .testimonials { scroll-margin-top: var(--nav-h, 97px); }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--page-x);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s, background 0.3s, transform 0.35s ease;
+}
+nav.scrolled { border-color: var(--border); background: var(--bg); }
+
+/* Only go translucent where the blur actually renders — without it the
+   project cards would smear straight through the bar. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  nav.scrolled {
+    background: color-mix(in srgb, var(--bg) 72%, transparent);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    backdrop-filter: saturate(180%) blur(14px);
+  }
+}
+
+/* Hide-on-scroll (mobile only — see the media query). */
+nav.nav-hidden { transform: translateY(-100%); }
+
+@media (prefers-reduced-motion: reduce) {
+  nav { transition: border-color 0.3s, background 0.3s; }
+  nav.nav-hidden { transform: none; }
+}
+
+.nav-logo img { height: 48px; }
+.nav-logo {
+  font-family: var(--sans);
+  font-size: 16px;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: var(--space-5);
+  list-style: none;
+}
+.nav-links a {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+  position: relative;
+}
+/* An invisible bold copy of the label fixes each link at its bold width,
+   so going bold on hover can't reflow the nav and nudge its neighbour. */
+.nav-links a::before {
+  content: attr(data-label);
+  display: block;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-weight: 600;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--ink);
+  transition: width 0.25s ease;
+}
+/* Hover: weight only, no underline. Guarded so it can't stick on touch. */
+@media (hover: hover) {
+  .nav-links a:hover { font-weight: 600; }
+}
+/* Active keeps the underline; bold so the rule matches the text width. */
+.nav-links a.active { font-weight: 600; }
+.nav-links a.active::after { width: 100%; }
+
+footer {
+  padding: var(--space-8) var(--page-x);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-4);
+}
+.footer-copy {
+  font-size: 12px;
+  color: var(--ink);
+  letter-spacing: 0.05em;
+}
+.footer-links {
+  display: flex;
+  gap: var(--space-4);
+}
+.footer-links a {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+/* ── RESPONSIVE (shared chrome only) ── */
+@media (max-width: 768px) {
+  /* Half the desktop rhythm: 256px of stacked padding between sections
+     is roughly a third of a phone screen of dead space. */
+  :root { --section-y: var(--space-8); }
+  footer { padding: var(--space-6) var(--page-x); }
+  .nav-logo img { height: 34px; }
+}
