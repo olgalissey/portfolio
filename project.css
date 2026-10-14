@@ -1,0 +1,26 @@
+/* ─────────────────────────────────────────────────────────────
+   Project page layout, shared by every case-study page.
+   Loaded alongside shared.css; index.html does not use it.
+   ───────────────────────────────────────────────────────────── */
+
+.project-hero {
+  padding: var(--space-10) var(--page-x) var(--section-y);
+}
+
+.project-name {
+  font-family: var(--serif);
+  font-size: clamp(40px, 7vw, 96px);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+/* Content goes here — empty on pages still being written. */
+.project-body {
+  padding: 0 var(--page-x) var(--section-y);
+}
+
+@media (max-width: 768px) {
+  .project-hero { padding-top: var(--space-6); }
+}
